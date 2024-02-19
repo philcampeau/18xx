@@ -454,7 +454,7 @@ module Engine
           sfma_idx = @round.entities.find_index(sfma)
           ssfl_idx = @round.entities.find_index(ssfl)
 
-          will_run = true
+          will_run = (version == 2)
           will_run = false if sflp_idx && sflp_idx <= @round.entity_index
           will_run = false if sfma_idx && sfma_idx <= @round.entity_index
           will_run = false if ssfl_idx && ssfl_idx <= @round.entity_index
@@ -1963,7 +1963,8 @@ module Engine
           min = current_token_cnt == 1 ? 1 : 0
 
           first_price = min.zero? ? XFORM_OPT_TOKEN_COST : XFORM_REQ_TOKEN_COST
-          max_opt_tokens = [((@transform_target.cash - first_price) / XFORM_OPT_TOKEN_COST).to_i, 0].max
+          required_payment = min.zero? ? 0 : XFORM_REQ_TOKEN_COST
+          max_opt_tokens = [((@transform_target.cash - required_payment) / XFORM_OPT_TOKEN_COST).to_i, 0].max
           max = [max_opt_tokens + min, 5 - current_token_cnt].min
 
           if max.zero?
@@ -2084,10 +2085,10 @@ module Engine
           tshares.each_with_index do |share, i|
             if i.even?
               @log << "Moving #{share.percent}% share of #{share.corporation.name} from #{old.name} to #{newa.name} treasury"
-              @share_pool.transfer_shares(share.to_bundle, newa, allow_president_change: true)
+              @share_pool.transfer_shares(share.to_bundle, newa, allow_president_change: true, corporate_transfer: true)
             else
               @log << "Moving #{share.percent}% share of #{share.corporation.name} from #{old.name} to #{newb.name} treasury"
-              @share_pool.transfer_shares(share.to_bundle, newb, allow_president_change: true)
+              @share_pool.transfer_shares(share.to_bundle, newb, allow_president_change: true, corporate_transfer: true)
             end
           end
         end

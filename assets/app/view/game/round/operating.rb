@@ -19,6 +19,7 @@ require 'view/game/buy_corporation'
 require 'view/game/route_selector'
 require 'view/game/cash_crisis'
 require 'view/game/double_head_trains'
+require 'view/game/combined_trains'
 require 'view/game/buy_token'
 
 module View
@@ -54,6 +55,7 @@ module View
           left << h(SwitchTrains) if @current_actions.include?('switch_trains')
           left << h(ReassignTrains) if @current_actions.include?('reassign_trains')
           left << h(DoubleHeadTrains) if @current_actions.include?('double_head_trains')
+          left << h(CombinedTrains) if @current_actions.include?('combined_trains')
           left << h(Choose) if @current_actions.include?('choose')
           left << h(BuyToken, entity: entity) if @current_actions.include?('buy_token')
 
@@ -128,6 +130,7 @@ module View
           }
 
           aquire_company_action = @current_actions.include?('acquire_company')
+          left << h(MapLegend, game: @game) if @game.show_map_legend? && @game.show_map_legend_on_left?
           right << h(Map, game: @game) unless aquire_company_action
           right << h(:div, div_props, [h(BuyCompanies, limit_width: true)]) if @current_actions.include?('buy_company')
           right << h(:div, div_props, [h(AcquireCompanies)]) if aquire_company_action
