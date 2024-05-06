@@ -29,6 +29,7 @@ module Engine
         MUST_SELL_IN_BLOCKS = true
         SELL_MOVEMENT = :left_share
         MUST_EMERGENCY_ISSUE_BEFORE_EBUY = true
+        SOLD_OUT_INCREASE = false
 
         BANK_CASH = 99_999
 
@@ -255,7 +256,7 @@ module Engine
             Engine::Step::Route,
             GSteamOverHolland::Step::Dividend,
             Engine::Step::DiscardTrain,
-            Engine::Step::BuyTrain,
+            GSteamOverHolland::Step::BuyTrain,
             [Engine::Step::BuyCompany, { blocks: true }],
           ], round_num: round_num)
         end
