@@ -358,6 +358,7 @@ module Engine
       }.freeze
 
       ASSIGNMENT_TOKENS = {}.freeze
+      ASSIGNMENT_STACK_GROUPS = {}.freeze
 
       OPERATING_ROUND_NAME = 'Operating'
       OPERATION_ROUND_SHORT_NAME = 'ORs'
@@ -835,6 +836,7 @@ module Engine
       end
 
       def rescue_exception(e, action)
+        LOGGER.debug { "Caught exception #{e.inspect}, backtrace: [#{e.backtrace.join(', ')}]" }
         @raw_actions.pop
         @actions.pop
         @exception = e
@@ -1844,7 +1846,7 @@ module Engine
         @_shares.reject! do |_, share|
           next if share.corporation != corporation
 
-          share.owner.shares_by_corporation[corporation].clear
+          share.owner.shares_by_corporation.delete(corporation)
 
           true
         end
@@ -2228,8 +2230,11 @@ module Engine
 
           return assignment.logo
         end
-
         self.class::ASSIGNMENT_TOKENS[assignment]
+      end
+
+      def assignment_stack_group(assignment)
+        self.class::ASSIGNMENT_STACK_GROUPS[assignment]
       end
 
       def bankruptcy_limit_reached?

@@ -368,7 +368,6 @@ module Engine
           revenue = SULPHUR_SPRINGS_BROWN_REVENUE
           sulphur_springs.revenue = revenue
           @log << "-- Event: Sulphur Springs (B2)'s revenue increases to #{format_currency(revenue)} --"
-          puts "Sulphur Springs (B2)'s revenue increases to #{format_currency(revenue)}"
         end
 
         def event_treaty_of_boston!
@@ -391,7 +390,7 @@ module Engine
             choices: { 'pay_debt' => 'Pay Doc Holliday for one DEBT token' },
             count: 2,
             count_per_or: 1,
-            closed_when_used_up: true,
+            remove_when_used_up: true,
           )
           sf_debt.add_ability(ability)
           sf_debt.owner = santa_fe
@@ -414,7 +413,7 @@ module Engine
             choices: { 'pay_debt' => 'Pay Santa Fe for one DEBT token' },
             count: 4,
             count_per_or: 1,
-            closed_when_used_up: true,
+            remove_when_used_up: true,
           )
           rg_debt.add_ability(ability)
           rg_debt.owner = rio_grande
@@ -890,7 +889,7 @@ module Engine
         def init_debt_corp(corporation)
           corporation.ipoed = true
           corporation.floated = true
-          price = @stock_market.share_price([0, 1])
+          price = @stock_market.share_price([0, 6])
           @stock_market.set_par(corporation, price)
           bundle = ShareBundle.new(corporation.shares_of(corporation))
           @share_pool.transfer_shares(bundle, @share_pool)
@@ -1213,7 +1212,7 @@ module Engine
 
           company.abilities[0].use!
 
-          ability = company.owner.abilities.find { |a| a.type == 'coal_mines' }
+          ability = company.owner.abilities.find { |a| a.type == :coal_mines }
           ability.add_count!(1)
           ability.description = ability.description.sub(/\d+/, ability.count.to_s)
 
