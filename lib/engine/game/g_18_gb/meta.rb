@@ -25,12 +25,14 @@ module Engine
             short_name: '2P EW',
             title: '2P East-West Scenario',
             desc: 'Play the East-West (rather than North-South) 2-player setup',
+            players: [2],
           },
           {
             sym: :four_player_alt,
             short_name: '4P Alt',
             title: '4P Alternate Setup',
             desc: 'Alternate company and corporation mix for 4 players',
+            players: [4],
           },
         ].freeze
 
