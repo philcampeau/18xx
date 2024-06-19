@@ -42,7 +42,6 @@ module Engine
              90
              100p
              110
-             110
              125
              140
              160
@@ -56,7 +55,6 @@ module Engine
              80
              90p
              100
-             110
              110
              125
              140
@@ -72,7 +70,6 @@ module Engine
              90
              100
              110
-             110
              125
              140
              160
@@ -86,7 +83,6 @@ module Engine
              80
              90
              100
-             110
              110
              125
              140],
@@ -147,6 +143,7 @@ module Engine
              245
              270
              300
+             330
              360
              400
              440
@@ -317,6 +314,10 @@ module Engine
           corps.find { |c| c[:sym] == sym }
         end
 
+        def corporation_opts
+          two_player? ? { max_ownership_percent: 70 } : {}
+        end
+
         def location_name(coord)
           @location_names ||= game_location_names
 
@@ -415,6 +416,13 @@ module Engine
           # Map-specific constant overrides
           #
           send("map_#{map_name}_constants")
+
+          #################################################
+          # Map-specific setup
+          #
+          return unless respond_to?("map_#{map_name}_setup")
+
+          send("map_#{map_name}_setup")
         end
 
         def init_round
@@ -506,6 +514,24 @@ module Engine
           @corporations << corporation
 
           @log << "#{corporation.name} is now available to start"
+        end
+
+        def check_other(route)
+          return unless respond_to?("map_#{map_name}_check_other")
+
+          send("map_#{map_name}_check_other", route)
+        end
+
+        def post_lay_tile(entity, tile)
+          return unless respond_to?("map_#{map_name}_post_lay_tile")
+
+          send("map_#{map_name}_post_lay_tile", entity, tile)
+        end
+
+        def token_same_hex?(entity, hex, token)
+          return false unless respond_to?("map_#{map_name}_token_same_hex?")
+
+          send("map_#{map_name}_token_same_hex?", entity, hex, token)
         end
       end
     end
