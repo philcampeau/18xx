@@ -8,14 +8,20 @@ module Engine
           ACTIONS = %w[destination_connection pass].freeze
 
           def description
-            'Place the Destination Bonus'
+            'Destination Bonus'
           end
 
-          def pass_description
-            'Skip (Destination Bonus)'
+          def log_skip(entity)
+            return if entity.minor?
+            return if entity == @game.rptla
+
+            super
           end
 
-          def actions(_entity)
+          def actions(entity)
+            return [] if entity.minor?
+            return [] if entity == @game.rptla
+
             self.class::ACTIONS
           end
 
@@ -27,6 +33,7 @@ module Engine
           end
 
           def destination_node_check?(corporation)
+            return if corporation.closed?
             return if corporation.destination_coordinates.nil?
 
             ability = @game.abilities(corporation, :destination_bonus)
@@ -34,6 +41,7 @@ module Engine
 
             destination_hex = @game.hex_by_id(corporation.destination_coordinates)
             home_node = corporation.tokens.first.city
+
             destination_hex.tile.nodes.first&.walk(corporation: corporation) do |path, _, _|
               return true if path.nodes.include?(home_node)
             end

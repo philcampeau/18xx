@@ -20,6 +20,7 @@ module Engine
                 @log << "#{entity.name} delivered #{commodity}"
                 @game.claim_concession(entity, commodity) unless ability.description.include?(commodity)
               end
+              @round.commodities_used = [] # clear for next route
             end
           end
 
@@ -29,6 +30,16 @@ module Engine
                 commodities_used: [],
               }
             )
+          end
+
+          def help
+            return [] if @game.gauge_change_markers.empty?
+
+            [
+              'Note: You do not need to click on Gauge Change Markers.',
+              'They are included if the route passes though it',
+              'They count as a zero revenue city location.',
+            ]
           end
         end
       end
