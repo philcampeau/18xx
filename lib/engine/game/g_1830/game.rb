@@ -109,7 +109,7 @@ module Engine
           ['', '', '', '10b', '20b', '30b', '40o'],
         ].freeze
 
-        PHASES = [{ name: '2', train_limit: 4, tiles: [:yellow], operating_rounds: 1 },
+        PHASES = [{ name: '2', train_limit: 4, tiles: [:yellow], operating_rounds: 1, status: %w[] },
                   {
                     name: '3',
                     on: '3',
@@ -124,7 +124,7 @@ module Engine
                     train_limit: 3,
                     tiles: %i[yellow green],
                     operating_rounds: 2,
-                    status: ['can_buy_companies'],
+                    status: %w[can_buy_companies],
                   },
                   {
                     name: '5',
@@ -147,6 +147,16 @@ module Engine
                     tiles: %i[yellow green brown],
                     operating_rounds: 3,
                   }].freeze
+
+        def game_phases
+          phases = super.dup
+          if crossbuy_companies?
+            phases.each do |phase|
+              phase[:status] << :can_buy_companies_from_other_players if %w[2 3 4].include?(phase[:name])
+            end
+          end
+          phases
+        end
 
         TRAINS = [{ name: '2', distance: 2, price: 80, rusts_on: '4', num: 6 },
                   { name: '3', distance: 3, price: 180, rusts_on: '6', num: 5 },
@@ -186,6 +196,11 @@ module Engine
           ], round_num: round_num)
         end
 
+        STATUS_TEXT = Base::STATUS_TEXT.merge(
+          'can_buy_companies_from_other_players' =>
+          ['Cross-buy companies', 'Players can buy companies from other players'],
+        ).freeze
+
         def multiple_buy_only_from_market?
           !optional_rules&.include?(:multiple_brown_from_ipo)
         end
@@ -198,6 +213,10 @@ module Engine
 
         def optional_6_train
           @optional_rules&.include?(:optional_6_train)
+        end
+
+        def crossbuy_companies?
+          @crossbuy_companies ||= optional_rules&.include?(:crossbuy_companies)
         end
       end
     end

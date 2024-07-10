@@ -29,6 +29,11 @@ module Engine
             short_name: 'Optional extra 6-Train',
             desc: 'Adds a 3rd 6-train',
           },
+          {
+            sym: :crossbuy_companies,
+            short_name: 'Cross-buy companies',
+            desc: 'Players may buy private companies from other players',
+          },
         ].freeze
       end
     end
