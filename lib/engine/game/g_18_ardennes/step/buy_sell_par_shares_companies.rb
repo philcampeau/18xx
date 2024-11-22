@@ -83,7 +83,7 @@ module Engine
           #         exchange for the minor company.
           def exchangeable_pool_shares(corporation, ability)
             minor = ability.owner
-            shares = @game.share_pool.shares_by_corporation[corporation]
+            shares = @game.share_pool.shares_by_corporation[corporation].take(1)
             return [] if shares.empty?
             return shares if corporation.owner == minor.owner
             return shares if corporation.receivership?
@@ -193,7 +193,7 @@ module Engine
           end
 
           def process_bankrupt(action)
-            @game.declare_bankrupt(action.entity)
+            @game.bankrupt!(action.entity, @game.bank)
           end
 
           def log_skip(entity)
