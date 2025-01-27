@@ -1017,7 +1017,7 @@ module Engine
       end
 
       def format_currency(val)
-        self.class::CURRENCY_FORMAT_STR % val
+        @user.dig('settings', 'no_currency') ? val : self.class::CURRENCY_FORMAT_STR % val        
       end
 
       def format_revenue_currency(val)

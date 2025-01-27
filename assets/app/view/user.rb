@@ -89,6 +89,8 @@ module View
           render_notifications,
           h(:h3, 'Statistics'),
           render_checkbox('Show Individual Statistics on Profile Page', :show_stats),
+          h(:h3, 'Currency symbols'),
+          render_checkbox('Hide Currency Symbols in Games', :no_currency),
           h(:h3, 'Display'),
           render_checkbox('Red 18xx.games Logo', :red_logo),
         ]),

@@ -40,6 +40,7 @@ module Lib
       path_timeout: 30,
       route_timeout: 10,
       show_stats: false,
+      no_currency: false,
     }.freeze
 
     def self.included(base)
