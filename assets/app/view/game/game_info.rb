@@ -43,6 +43,7 @@ module View
           children.concat(other_game_status)
         end
         children.concat(timeline) if timeline
+        children.concat(private_buy_ins) if @game.respond_to?(:companies)
         children.concat(endgame)
         children << h(GameMeta, game: @game)
       end
@@ -481,6 +482,36 @@ module View
         [
          h(:h3, 'Reasons for End of Game'),
          table,
+        ]
+      end
+
+      def private_buy_ins
+        values = @game.companies
+        rows = values.map do |c|
+          company_str = "#{c.name} (#{c.sym})"
+          min_price_str = c.min_price
+          max_price_str = c.max_price
+
+          h(:tr, [
+            h(:td, company_str),
+            h(:td, min_price_str),
+            h(:td, max_price_str),
+          ])
+        end
+
+        table = h(:table, [
+          h(:thead, [
+            h(:tr, [
+              h(:th, 'Company'),
+              h(:th, 'Min Price'),
+              h(:th, 'Max Price'),
+            ]),
+          ]),
+          h(:tbody, rows),
+        ])
+        [
+          h(:h3, 'Private Company Buy-In Prices'),
+          table,
         ]
       end
 
