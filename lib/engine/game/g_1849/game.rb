@@ -68,7 +68,7 @@ module Engine
             train_limit: 4,
             tiles: %i[yellow green],
             operating_rounds: 2,
-            status: %w[gray_uses_white can_buy_companies],
+            status: %w[gray_uses_white can_buy_companies can_buy_tokens],
           },
           {
             name: '8H',
@@ -76,7 +76,7 @@ module Engine
             train_limit: 3,
             tiles: %i[yellow green],
             operating_rounds: 2,
-            status: %w[gray_uses_gray can_buy_companies],
+            status: %w[gray_uses_gray can_buy_companies can_buy_tokens bonds],
           },
           {
             name: '10H',
@@ -84,7 +84,7 @@ module Engine
             train_limit: 2,
             tiles: %i[yellow green brown],
             operating_rounds: 3,
-            status: %w[gray_uses_gray can_buy_companies],
+            status: %w[gray_uses_gray can_buy_companies can_buy_tokens bonds],
           },
           {
             name: '12H',
@@ -92,7 +92,7 @@ module Engine
             train_limit: 2,
             tiles: %i[yellow green brown],
             operating_rounds: 3,
-            status: %w[gray_uses_black],
+            status: %w[gray_uses_black can_buy_tokens bonds e_tokens],
           },
           {
             name: '16H',
@@ -100,7 +100,7 @@ module Engine
             train_limit: 2,
             tiles: %i[yellow green brown],
             operating_rounds: 3,
-            status: %w[gray_uses_black blue_zone],
+            status: %w[gray_uses_black blue_zone can_buy_tokens bonds e_tokens],
           },
         ].freeze
 
@@ -111,9 +111,9 @@ module Engine
             distance: 6,
             price: 200,
             rusts_on: '10H',
-            events: [{ 'type' => 'green_par' }, { 'type' => 'buy_tokens' }],
+            events: [{ 'type' => 'green_par' }],
           },
-          { name: '8H', distance: 8, price: 350, rusts_on: '16H', events: [{ 'type' => 'bonds' }] },
+          { name: '8H', distance: 8, price: 350, rusts_on: '16H' },
           {
             name: '10H',
             num: 2,
@@ -126,26 +126,27 @@ module Engine
             num: 1,
             distance: 12,
             price: 800,
-            events: [{ 'type' => 'close_companies' }, { 'type' => 'earthquake' }, { 'type' => 'e_tokens' }],
+            events: [{ 'type' => 'close_companies' }, { 'type' => 'earthquake' }],
           },
           { name: '16H', distance: 16, price: 1100 },
           { name: 'E', num: 6, available_on: '12H', distance: 99, price: 550 },
           { name: 'R6H', num: 2, available_on: '16H', distance: 6, price: 350 },
         ].freeze
 
+        def game_phases
+          phase_list = super.dup
+
+          phase_list.map do |phase|
+            phase[:status] -= ['can_buy_tokens'] unless acquiring_station_tokens?
+            phase[:status] -= ['bonds'] unless bonds?
+            phase[:status] -= ['e_tokens'] unless electric_dreams?
+          end
+          phase_list
+        end
+
         def game_trains
           train_list = super.dup
           train_list.reject! { |t| t[:name] == 'E' } unless electric_dreams?
-
-          conditions = [
-            { name: '6H', type: 'buy_tokens', condition: !acquiring_station_tokens? },
-            { name: '8H', type: 'bonds', condition: !bonds? },
-            { name: '12H', type: 'e_tokens', condition: !electric_dreams? },
-          ]
-
-          conditions.each do |cond|
-            train_list.find { |t| t[:name] == cond[:name] }[:events].reject! { |e| e['type'] == cond[:type] } if cond[:condition]
-          end
 
           train_list
         end
@@ -196,19 +197,16 @@ module Engine
           earthquake: ['Messina Earthquake',
                        'Messina (B14) downgraded to yellow, tokens removed from game.
                        Cannot be upgraded until after next stock round'],
-          buy_tokens: ['Cross-buy Station Tokens',
-                       'Corporations may now buy station tokens from other corporations'],
-          bonds: ['Bonds Available',
-                  'Corporations can issue a single L.500 bond, with L.50 interest per OR'],
-          e_tokens: ['E-Tokens Available',
-                     'Corporations can buy E-tokens to allow the purchase of E-Trains'],
         ).freeze
 
         STATUS_TEXT = Base::STATUS_TEXT.merge(
           blue_zone: ['Blue Zone Available', 'Corporation share prices can enter the blue zone'],
           gray_uses_white: ['White Revenues', 'Gray locations use white revenue values'],
           gray_uses_gray: ['Gray Revenues', 'Gray locations use gray revenue values'],
-          gray_uses_black: ['Black Revenues', 'Gray locations use black revenue values']
+          gray_uses_black: ['Black Revenues', 'Gray locations use black revenue values'],
+          can_buy_tokens: ['Cross-buy Station Tokens', 'Corporations may now buy station tokens from other corporations'],
+          bonds: ['Bonds Available', 'Corporations can issue a single L.500 bond, with L.50 interest per OR'],
+          e_tokens: ['E-Tokens Available', 'Corporations can buy E-tokens to allow the purchase of E-Trains']
         ).freeze
 
         GRAY_REVENUE_CENTERS =
@@ -263,7 +261,8 @@ module Engine
                       :loan_choice_player, :player_debts,
                       :max_value_reached,
                       :old_operating_order, :moved_this_turn,
-                      :e_token_sold, :e_tokens_enabled, :issue_bonds_enabled, :buy_tokens_enabled
+                      :e_token_sold, :can_buy_tokens_event,
+                      :bonds_event, :e_tokens_event
 
         def option_delay_ift?
           @optional_rules&.include?(:delay_ift)
@@ -326,6 +325,9 @@ module Engine
 
           @player_debts = Hash.new { |h, k| h[k] = 0 }
           @moved_this_turn = []
+          @can_buy_tokens_event = false
+          @bonds_event = false
+          @e_tokens_event = false
         end
 
         def setup_companies
@@ -842,21 +844,6 @@ module Engine
 
         def reduced_4p_corps?
           @reduced_4p_corps ||= @optional_rules&.include?(:reduced_4p_corps)
-        end
-
-        def event_buy_tokens!
-          @buy_tokens_enabled = true
-          @log << "-- Event: #{EVENTS_TEXT[:buy_tokens][1]} --"
-        end
-
-        def event_bonds!
-          @issue_bonds_enabled = true
-          @log << "-- Event: #{EVENTS_TEXT[:bonds][1]} --"
-        end
-
-        def event_e_tokens!
-          @e_tokens_enabled = true
-          @log << "-- Event: #{EVENTS_TEXT[:e_tokens][1]} --"
         end
 
         # code below is for Bonds variant

@@ -21,7 +21,7 @@ module Engine
           end
 
           def can_buy_token?(entity)
-            @game.buy_tokens_enabled &&
+            @game.phase.status.include?('can_buy_token') &&
               !@bought_token &&
               !available_tokens(entity).empty? &&
               MIN_PRICE <= buying_power(entity)

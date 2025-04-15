@@ -73,7 +73,7 @@ module Engine
           def can_buy_e_token?(entity)
             @game.electric_dreams? &&
               entity.corporation? &&
-              @game.e_tokens_enabled &&
+              @game.phase.status.include?('e_tokens') &&
               !@game.e_token?(entity) &&
               entity.cash >= e_token_cost
           end

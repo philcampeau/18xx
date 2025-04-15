@@ -61,7 +61,7 @@ module Engine
 
           def can_take_loan?(entity)
             @game.bonds? &&
-             @game.issue_bonds_enabled &&
+            @game.phase.status.include?('bonds') &&
              entity.corporation? &&
              !@round.redeemed_bond &&
              entity.loans.size < @game.maximum_loans(entity)
