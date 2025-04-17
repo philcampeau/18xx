@@ -33,11 +33,8 @@ module Engine
 
           def log_skip(entity)
             return if entity.minor?
-
-            if @game.saved_or_round&.round_num == @round.round_num
-              return @log << "#{entity.name} is at train limit and cannot buy a train" unless room?(entity)
-              return @log << "#{entity.name} cannot afford a train" unless can_buy_train?(entity)
-            end
+            return @log << "#{entity.name} is at train limit and cannot buy a train" unless room?(entity)
+            return @log << "#{entity.name} cannot afford a train" unless can_buy_train?(entity)
 
             super
           end
