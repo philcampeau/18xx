@@ -261,8 +261,7 @@ module Engine
                       :loan_choice_player, :player_debts,
                       :max_value_reached,
                       :old_operating_order, :moved_this_turn,
-                      :e_token_sold, :e_tokens_enabled, :issue_bonds_enabled, :buy_tokens_enabled
-        attr_reader :cash_crisis_due_to_forced_repay
+
 
         def option_delay_ift?
           @optional_rules&.include?(:delay_ift)
