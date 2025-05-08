@@ -454,6 +454,7 @@ module Engine
         end
 
         def close_corporation(corporation, quiet: false)
+          repay_bond_on_close!(corporation)
           remove_rsa_abilities(corporation)
           super
           corporation = reset_corporation(corporation)
@@ -905,6 +906,13 @@ module Engine
 
         def corp_loans_text
           'Issued Bond'
+        end
+
+        def repay_bond_on_close!(corporation)
+          owed = loan_value(corporation)
+          owed_fmt = format_currency(owed)
+          @log << "#{corporation.name} must repay its bond of #{owed_fmt}"
+          corporation.spend(owed, bank, check_cash: false)
         end
 
         # code below is for the Electric Dreams variant
