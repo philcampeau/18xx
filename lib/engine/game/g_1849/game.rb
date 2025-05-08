@@ -262,6 +262,7 @@ module Engine
                       :max_value_reached,
                       :old_operating_order, :moved_this_turn,
                       :e_token_sold, :e_tokens_enabled, :issue_bonds_enabled, :buy_tokens_enabled
+        attr_reader :cash_crisis_due_to_forced_repay
 
         def option_delay_ift?
           @optional_rules&.include?(:delay_ift)
@@ -455,6 +456,7 @@ module Engine
 
         def close_corporation(corporation, quiet: false)
           remove_rsa_abilities(corporation)
+          repay_bond_on_close!(corporation) if corporation.loans.any?
           super
           corporation = reset_corporation(corporation)
           @afg = corporation if corporation.id == self.class::CORP_CHOOSES_HOME
@@ -905,6 +907,13 @@ module Engine
 
         def corp_loans_text
           'Issued Bond'
+        end
+
+        def repay_bond_on_close!(corporation)
+          owed = loan_value(corporation)
+          owed_fmt = format_currency(owed)
+          @log << "#{corporation.name} must repay its bond of #{owed_fmt}"
+          corporation.spend(owed, bank, check_cash: false)
         end
 
         # code below is for the Electric Dreams variant
