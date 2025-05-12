@@ -28,6 +28,12 @@ module Engine
             actions
           end
 
+          def round_state
+            {
+              emr_corporations: [],
+            }
+          end
+
           def description
             'Emergency Money Raising'
           end
@@ -41,6 +47,7 @@ module Engine
           end
 
           def active_entities
+            print "EMR ACTIVE ENTITIES CHECK"
             return [] unless cash_crisis_entity&.cash&.negative?
 
             [cash_crisis_entity]
@@ -77,6 +84,7 @@ module Engine
 
             payee.spend(amount, debtor)
             @game.log << "#{payee.name} pays off #{debtor.name}'s debt of #{@game.format_currency(amount)}"
+            @emr_corporations.delete(debtor) unless debtor.cash.negative?
             @active_entity = nil
           end
 
@@ -89,7 +97,7 @@ module Engine
 
           # needed for bonds variant
           def cash_crisis_entity
-            @game.corporations.find { |corp| corp.cash.negative? }
+            @round.emr_corporations.first || @game.corporations.find { |corp| corp.cash.negative? }
           end
         end
       end
