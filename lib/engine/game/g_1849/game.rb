@@ -455,7 +455,11 @@ module Engine
 
         def close_corporation(corporation, quiet: false)
           # Repay the bond and handle insufficient funds before proceeding
-          repay_bond_on_close!(corporation) if corporation.loans.any?
+          if corporation.loans.any?
+            repay_bond_on_close!(corporation)
+            # If the corporation still can't pay, defer closure and let EMR handle it
+            return if @round.emr_corporations.include?(corporation)
+          end
           remove_rsa_abilities(corporation)
           super
           corporation = reset_corporation(corporation)
@@ -913,12 +917,8 @@ module Engine
           owed = loan_value(corporation)
           owed_fmt = format_currency(owed)
           @log << "#{corporation.name} must repay its bond of #{owed_fmt}"
-          print "repay_bond cash negative before: #{corporation.cash.negative?}"
-          print "Corps in round var before: #{@round.emr_corporations}"
           corporation.spend(owed, bank, check_cash: false)
           @round.emr_corporations << corporation if corporation.cash.negative?
-          print "repay bond cash negative after: #{corporation.cash.negative?}"
-          print "Corps in round var after: #{@round.emr_corporations}"
         end
 
         # code below is for the Electric Dreams variant

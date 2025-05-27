@@ -47,7 +47,6 @@ module Engine
           end
 
           def active_entities
-            print "EMR ACTIVE ENTITIES CHECK"
             return [] unless cash_crisis_entity&.cash&.negative?
 
             [cash_crisis_entity]
