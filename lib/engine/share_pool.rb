@@ -91,9 +91,11 @@ module Engine
         borrowed = borrow_from ? (price - entity.cash) : 0
         borrowed_text = borrowed.positive? ? " by borrowing #{@game.format_currency(borrowed)} from #{borrow_from.name}" : ''
         verb = entity == corporation ? 'redeems' : 'buys'
+        name = entity.name
+        name += " (#{entity.owner.name})" if @game.round.is_a?(Engine::Round::Stock) && entity != entity.owner
         unless silent
           discounter_str = discounter ? "(#{discounter.name}) " : ''
-          @log << "#{entity.name} #{discounter_str}#{verb} #{share_str} "\
+          @log << "#{name} #{discounter_str}#{verb} #{share_str} "\
                   "from #{from} "\
                   "for #{@game.format_currency(price)}#{swap_text}#{borrowed_text}"
         end
