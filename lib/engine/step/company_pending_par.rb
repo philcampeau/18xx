@@ -28,9 +28,23 @@ module Engine
       def process_par(action)
         share_price = action.share_price
         corporation = action.corporation
+        entity = action.entity
+
         @game.stock_market.set_par(corporation, share_price)
-        @game.share_pool.buy_shares(action.entity, corporation.shares.first, exchange: :free)
+        @log << "#{entity.name} pars #{corporation.name} at #{@game.format_currency(share_price.price)}"
+
+        unless corporation.president_share_granted_from_private
+          @game.share_pool.buy_shares(entity, corporation.shares.first, exchange: :free)
+        end
+
+        if corporation.pending_capitalization_from_private_percent.positive? 
+          @game.settle_pending_capitalization_from_private(corporation)
+        end
+
         @game.after_par(corporation)
+        corporation.president_share_granted_from_private = false
+        corporation.pending_capitalization_from_private_percent = 0
+        corporation.ipoed = true
         @round.companies_pending_par.shift
       end
 

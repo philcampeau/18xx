@@ -1117,11 +1117,18 @@ module Engine
           ability.shares.each do |share|
             if share.president
               @round.companies_pending_par << company
-            else
+              transfer_share_from_private(player, share)
+              share.corporation.president_share_granted_from_private = true
+              share.corporation.pending_capitalization_from_private_percent += share.percent
+            elsif share.corporation.par_price
               share_pool.buy_shares(player, share, exchange: :free)
+            else
+              transfer_share_from_private(player, share)
+              share.corporation.pending_capitalization_from_private_percent += share.percent
             end
           end
         end
+
         abilities(company, :acquire_company) do |ability|
           acquired_company = company_by_id(ability.company)
           acquired_company.owner = player
@@ -1857,7 +1864,30 @@ module Engine
         return false if corporation.needs_token_to_par && corporation.tokens.empty?
         return false if corporation.all_abilities.find { |a| a.type == :unparrable }
 
+        return true if corporation.president_share_granted_from_private && corporation.owner == parrer
+
         !corporation.ipoed
+      end
+
+      def transfer_share_from_private(player, share)
+        share_pool.transfer_shares(
+          Engine::ShareBundle.new(share),
+          player,
+          allow_president_change: true
+        )
+        @log << "#{player.name} receives a #{share.percent}% share of #{share.corporation.name}"
+      end
+
+      def settle_pending_capitalization_from_private(corporation)
+        return unless corporation.floated?
+        return unless corporation.capitalization == :full
+        return unless corporation.president_share_granted_from_private
+
+        price = corporation.par_price.price * corporation.total_shares
+
+        bank.spend(price, corporation)
+        @log << "#{corporation.name} floats"
+        @log << "#{corporation.name} receives #{format_currency(price)} in capitalization"
       end
 
       # Called by Engine::Step::BuyCompany to determine if the company's owner is even allowed to sell the company

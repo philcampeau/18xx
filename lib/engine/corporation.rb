@@ -24,7 +24,8 @@ module Engine
 
     attr_accessor :ipoed, :floated, :par_via_exchange, :max_ownership_percent, :float_percent, :capitalization, :second_share,
                   :type, :floatable, :original_par_price, :reservation_color, :min_price, :ipo_owner,
-                  :always_market_price, :full_name
+                  :always_market_price, :full_name, :president_share_granted_from_private,
+                  :pending_capitalization_from_private_percent
     attr_reader :companies, :name, :fraction_shares, :id, :needs_token_to_par,
                 :presidents_share, :price_multiplier, :treasury_as_holding
     attr_writer :par_price, :share_price, :forced_share_percent
@@ -80,6 +81,8 @@ module Engine
       @price_multiplier = (@second_share&.percent || (@presidents_share.percent / 2)) / @price_percent
       @treasury_as_holding = opts[:treasury_as_holding] || false
       @corporation_can_ipo = opts[:corporation_can_ipo]
+      @president_share_granted_from_private = false
+      @pending_capitalization_from_private_percent = 0
 
       init_abilities(opts[:abilities])
       init_operator(opts)
