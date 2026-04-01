@@ -14,30 +14,20 @@ module Engine
         include Entities
 
         GAME_END_CHECK = { bank: :full_or }.freeze
-
         BANKRUPTCY_ENDS_GAME_AFTER = :all_but_one
-
         BANK_CASH = 6_000
-
         CURRENCY_FORMAT_STR = 'K%s'
-
-        STARTING_CASH = { 2 => 900, 3 => 600, 4 => 450 }.freeze
+        EBUY_DEPOT_TRAIN_MUST_BE_CHEAPEST = false
 
         CAPITALIZATION = :incremental
-
         MUST_SELL_IN_BLOCKS = true
-
         SELL_AFTER = :operate
-
         SELL_BUY_ORDER = :sell_buy
-
         HOME_TOKEN_TIMING = :float
-
         MUST_BUY_TRAIN = :always
 
         CERT_LIMIT = { 2 => 18, 3 => 12, 4 => 9 }.freeze
-
-        EBUY_DEPOT_TRAIN_MUST_BE_CHEAPEST = false
+        STARTING_CASH = { 2 => 900, 3 => 600, 4 => 450 }.freeze
 
         # Custom constants
         SJ_NAME = 'SJ'
@@ -264,7 +254,7 @@ module Engine
         def new_auction_round
           Round::Auction.new(self, [
             G18Scan::Step::CompanyPendingPar,
-            G18Scan::Step::WaterfallAuction,
+            G18Scan::Step::BidToBuyAuction,
           ])
         end
 
