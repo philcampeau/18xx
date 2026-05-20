@@ -127,6 +127,8 @@ module Engine
               end
 
               it 'all expected cash is accounted for' do
+                next if @game.unlimited_bank?
+
                 starting_cash = @game.bank_starting_cash
                 ending_cash = @game.spenders.sum(&:cash)
 
