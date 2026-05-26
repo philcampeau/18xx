@@ -24,6 +24,8 @@ module View
 
           return [l_center, l_up40, l_down40] if @tile.towns.one? && @tile.cities.empty?
 
+          return [l_top_near, l_top, l_bottom] if @tile.towns.size == 2 && @tile.cities.empty?
+
           if @tile.cities.one? && @tile.towns.empty?
             return case @tile.cities.first.slots
                    when 3
@@ -68,7 +70,7 @@ module View
             if layout == :pointy && @tile.city_towns.size == 2 &&
                 ([1, 4] - ct_edges).size == 2 &&
                 @tile.city_towns.all? { |ct| @tile.preferred_city_town_edges[ct] }
-              return [center]
+              return [center, l_up40, l_down40, l_top, l_bottom]
             end
 
             # pointy map: if many cities or there is a single town at the bottom, allow name at very
@@ -252,6 +254,35 @@ module View
             x: 0,
             y: -delta_y / 2,
           }
+        end
+
+        def l_center_above
+          {
+            region_weights: {
+              [7, 8] => 1,
+              [0, 1, 2, 3] => 0.3,
+            },
+            x: 0,
+            y: -(delta_y / 2) - 20,
+          }
+        end
+
+        def l_top_near
+          case layout
+          when :pointy
+            {
+              region_weights: { [0, 1] => 1, [2, 3, 5, 6] => 0.5 },
+              x: 0,
+              y: -(50 + delta_y),  # less extreme than l_top's 63/70
+            }
+          when :flat
+            {
+              region_weights_in: { TRACK_TO_EDGE_3 => 1, TOP_ROW => 2 },
+              region_weights_out: { TOP_ROW => 1 },
+              x: 0,
+              y: -(44 + delta_y),
+            }
+          end
         end
 
         def l_down24
