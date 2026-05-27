@@ -575,7 +575,7 @@ module Engine
           'Treasury'
         end
 
-        def after_buy_company(player, company, price)
+        def after_buy_company(player, company, price, previous_owner: nil)
           abilities(company, :shares) do |ability|
             ability.shares.each do |share|
               if share.president

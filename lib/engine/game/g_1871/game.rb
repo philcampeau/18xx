@@ -313,7 +313,7 @@ module Engine
         # - Union Bank: Create the bank player and give it the starting shares
         #
         # - PEIR Shares: Create the PEIR shares when someone buys a PEIR private
-        def after_buy_company(player, company, _price)
+        def after_buy_company(player, company, _price, previous_owner: nil)
           abilities(company, :shares) do |ability|
             ability.shares.each do |share|
               if share.percent >= 20

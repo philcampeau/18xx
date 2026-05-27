@@ -432,7 +432,7 @@ module Engine
 
         include StubsAreRestricted
 
-        def after_buy_company(player, company, price)
+        def after_buy_company(player, company, price, previous_owner: nil)
           super
 
           return unless company.id == 'RhE'

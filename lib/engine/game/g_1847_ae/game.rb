@@ -411,7 +411,7 @@ module Engine
           super
         end
 
-        def after_buy_company(player, company, _price)
+        def after_buy_company(player, company, _price, previous_owner: nil)
           abilities(company, :shares) do |ability|
             ability.shares.each do |share|
               corporation = share.corporation

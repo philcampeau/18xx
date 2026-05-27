@@ -537,7 +537,7 @@ module Engine
           corporation != @boe
         end
 
-        def after_buy_company(player, company, _price)
+        def after_buy_company(player, company, _price, previous_owner: nil)
           # share_price = 100
           # # NOTE: This should only ever be P6
           abilities(company, :shares) do |ability|

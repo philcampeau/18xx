@@ -353,7 +353,7 @@ module Engine
           @graph.route_info(entity)&.dig(:route_available)
         end
 
-        def after_buy_company(player, company, _price)
+        def after_buy_company(player, company, _price, previous_owner: nil)
           super
           return ols_start(player) if company.sym == 'OLS'
         end

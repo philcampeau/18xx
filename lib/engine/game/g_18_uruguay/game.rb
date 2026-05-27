@@ -266,7 +266,7 @@ module Engine
           buy_train(@rptla, train)
         end
 
-        def after_buy_company(player, company, _price)
+        def after_buy_company(player, company, _price, previous_owner: nil)
           abilities(company, :shares) do |ability|
             ability&.shares&.each do |share|
               return super unless share.corporation == @rptla

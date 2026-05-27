@@ -335,7 +335,7 @@ module Engine
           share_pool.transfer_shares(belgian_starting_corporation.ipo_shares.last.to_bundle, share_pool)
         end
 
-        def after_buy_company(player, company, price)
+        def after_buy_company(player, company, price, previous_owner: nil)
           # Nord share that comes with NMinorS transfered this way so the presidency doesn't change when the Nord is
           # the random French corporation and a player buys MNinorS
           if company.id == 'NMinorS'

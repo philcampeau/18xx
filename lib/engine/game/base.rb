@@ -1111,9 +1111,13 @@ module Engine
         @companies.select { |c| !c.closed? && c.owner == @bank }
       end
 
-      def after_buy_company(player, company, _price)
+      def after_buy_company(player, company, _price, previous_owner: nil)
         abilities(company, :shares) do |ability|
           ability.shares.each do |share|
+            # This is relevant when cross-buying private companies that came with shares.
+            # Only grant the free share on initial purchase from the bank/auction.
+            next if previous_owner&.player?
+
             if share.president
               @round.companies_pending_par << company
             else

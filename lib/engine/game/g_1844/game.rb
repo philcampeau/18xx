@@ -710,7 +710,7 @@ module Engine
           double_share ? [double_share] : shares.take(num_shares)
         end
 
-        def after_buy_company(player, company, _price)
+        def after_buy_company(player, company, _price, previous_owner: nil)
           super
           return if !mountain_railways.include?(company) && !tunnel_companies.include?(company)
 

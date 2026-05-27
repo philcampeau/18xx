@@ -369,7 +369,7 @@ module Engine
           company.local_railway? ? 'LOCAL RAILWAY' : super
         end
 
-        def after_buy_company(player, company, _price)
+        def after_buy_company(player, company, _price, previous_owner: nil)
           minor_assigned = false
           abilities(company, :assign_minor) do |ability|
             target_corp = minor_by_id(ability.corp_sym)

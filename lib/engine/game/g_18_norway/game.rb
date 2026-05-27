@@ -566,7 +566,7 @@ module Engine
           update_cert_limit_to(new_cert_limit) unless @cert_limit == new_cert_limit
         end
 
-        def after_buy_company(player, company, price)
+        def after_buy_company(player, company, price, previous_owner: nil)
           return super if company.id != 'P7'
 
           h = hovedbanen

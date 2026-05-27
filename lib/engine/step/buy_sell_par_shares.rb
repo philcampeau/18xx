@@ -355,7 +355,7 @@ module Engine
                   "#{owner ? '-- ' : ''}#{entity.name} buys #{company.name} from "\
                     "#{owner ? owner.name : 'the market'} for #{@game.format_currency(price)}"
                 end
-        @game.after_buy_company(entity, company, price) if entity.player?
+        @game.after_buy_company(entity, company, price, previous_owner: owner) if entity.player?
       end
 
       def auto_actions(entity)

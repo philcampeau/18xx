@@ -298,7 +298,7 @@ module Engine
           end
         end
 
-        def after_buy_company(player, company, _price)
+        def after_buy_company(player, company, _price, previous_owner: nil)
           target_price = optional_short_game ? 67 : 100
           share_price = stock_market.par_prices.find { |pp| pp.price == target_price }
 

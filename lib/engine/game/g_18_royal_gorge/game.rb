@@ -1282,7 +1282,7 @@ module Engine
         end
 
         # company bought by player during auction
-        def after_buy_company(player, company, price)
+        def after_buy_company(player, company, price, previous_owner: nil)
           return super unless company == coal_depot
 
           num_cubes = (price / 10.0).floor

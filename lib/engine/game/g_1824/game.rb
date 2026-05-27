@@ -583,7 +583,7 @@ module Engine
         end
 
         # This is modified quite a lot compared to 1837
-        def after_buy_company(player, company, price)
+        def after_buy_company(player, company, price, previous_owner: nil)
           return if mountain_railway?(company)
 
           id = company.id

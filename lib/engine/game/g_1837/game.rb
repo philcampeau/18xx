@@ -648,7 +648,7 @@ module Engine
           @companies.select { |c| c.owner == @bank }
         end
 
-        def after_buy_company(player, company, _price)
+        def after_buy_company(player, company, _price, previous_owner: nil)
           abilities(company, :shares) do |ability|
             share = ability.shares.first
             @share_pool.buy_shares(player, share, exchange: :free)
