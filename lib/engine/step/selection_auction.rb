@@ -6,6 +6,8 @@ module Engine
   module Step
     class SelectionAuction < Base
       include Engine::Step::PassableAuction
+      include ProgrammerAuctionBid
+
       ACTIONS = %w[bid pass].freeze
 
       attr_reader :companies
@@ -140,6 +142,30 @@ module Engine
           super
         end
       end
+
+      # program auction bid methods
+
+      def auto_requires_auctioning?(_entity, program)
+        @auctioning && program.bid_target != @auctioning
+      end
+
+      def auto_bid_on_empty?(_entity, program)
+        program.enable_buy_price && @bids[program.bid_target].empty?
+      end
+
+      def hide_buy_price_option?
+        true
+      end
+
+      def hide_pass_unless_outbid_option?
+        true
+      end
+
+      def hide_entity_selector_dropdown?
+        true
+      end
+
+      # end of program auction bid methods
 
       private
 

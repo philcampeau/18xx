@@ -199,6 +199,73 @@ module Engine
         @game.after_buy_company(player, company, price)
       end
 
+      def activate_program_auction_bid(entity, program)
+        if program.auto_buy_face_value
+          opportunity = next_zero_bid_company_before(program.bid_target)
+          return [Action::Bid.new(entity, **bid_params(opportunity, opportunity.min_bid))] if opportunity
+        end
+
+        target = program.bid_target
+        return [Action::ProgramDisable.new(entity, reason: 'No bid target selected')] unless target
+
+        if target.owner&.player?
+          return [Action::ProgramDisable.new(entity, reason: "#{target.name} is owned by #{target.owner.name}")]
+        end
+
+        unless available.include?(target)
+          return [Action::ProgramDisable.new(entity, reason: "#{target.name} is no longer available")]
+        end
+
+        high_bid = highest_bid(target)
+        return [] if high_bid&.entity == entity # already winning; nothing to do this turn
+
+        if program.unconditional_pass
+          return actions(entity).include?('pass') ? [Action::Pass.new(entity)] : []
+        end
+
+        return [] unless program.enable_maximum_bid
+
+        required = min_bid(target)
+
+        return [Action::Bid.new(entity, **bid_params(target, required))] if required <= program.maximum_bid.to_i
+
+        if program.auto_pass_after
+          return actions(entity).include?('pass') ? [Action::Pass.new(entity)] : []
+        end
+
+        [Action::ProgramDisable.new(entity, reason: "Price for #{target.name} exceeded maximum bid")]
+      end
+
+      def hide_pass_unless_outbid_option?
+        false
+      end
+
+      def auto_requires_auctioning?(_entity, program)
+        @auctioning && program.bid_target != @auctioning
+      end
+
+      def auto_bid_on_empty?(_entity, program)
+        program.enable_buy_price && @bids[program.bid_target].empty?
+      end
+
+      def hide_buy_price_option?
+        true
+      end
+
+      def hide_entity_selector_dropdown?
+        true
+      end
+
+      def next_zero_bid_company_before(target)
+        return unless target
+
+        @companies.each do |c|
+          return nil if c == target
+          return c if @bids[c].nil? || @bids[c].empty?
+        end
+        nil
+      end
+
       private
 
       def accept_bid(bid)
@@ -218,6 +285,14 @@ module Engine
         @bidders[company] |= [entity]
 
         @log << "#{entity.name} bids #{@game.format_currency(price)} for #{bid.company.name}"
+      end
+
+      def bid_params(target, price)
+        params = { price: price }
+        params[:corporation] = target if target.corporation?
+        params[:company] = target if target.company?
+        params[:minor] = target if target.minor?
+        params
       end
     end
   end

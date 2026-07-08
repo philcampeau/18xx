@@ -769,8 +769,8 @@ module Engine
       end
 
       def available_programmed_actions
-        # By default assume normal 1830esk buy shares
-        [Action::ProgramBuyShares, Action::ProgramSharePass]
+        # By default assume normal 1830-style buy shares
+        [Action::ProgramBuyShares, Action::ProgramSharePass, Action::ProgramAuctionBid]
       end
 
       def self.filtered_actions(actions)
@@ -858,7 +858,13 @@ module Engine
             auto_actions.concat(actions)
           end
           if validate_auto_actions
-            raise GameError, 'Auto actions do not match' unless auto_actions_match?(action.auto_actions, auto_actions)
+            unless auto_actions_match?(action.auto_actions, auto_actions)
+              warn "AUTO ACTION MISMATCH for action id=#{action.id}, type=#{action.type}"
+              warn "current_entity=#{round.current_entity&.name} "
+              warn "CLIENT: #{action.auto_actions.map { |a| a.to_h.except('created_at') }}"
+              warn "SERVER: #{auto_actions.map { |a| a.to_h.except('created_at') }}"
+              raise GameError, 'Auto actions do not match'
+            end
           else
             # Update the last raw actions as the hash maybe incorrect
             action.clear_cache

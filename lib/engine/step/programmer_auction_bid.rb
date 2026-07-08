@@ -20,6 +20,10 @@ module Engine
         end
 
         if auto_requires_auctioning?(entity, program)
+          if program.pass_until_next_item
+            return actions(entity).include?('pass') ? [Action::Pass.new(entity)] : []
+          end
+
           return [Action::ProgramDisable.new(entity,
                                              reason: "#{@auctioning.name} chosen instead of #{target.name}")]
         end
@@ -31,6 +35,10 @@ module Engine
 
         high_bid = highest_bid(target)
         if high_bid&.entity == entity
+          if program.pass_unless_outbid
+            return actions(entity).include?('pass') ? [Action::Pass.new(entity)] : []
+          end
+
           return [Action::ProgramDisable.new(entity,
                                              reason: "#{entity.name} is already the high bid on #{target.name}")]
         end
@@ -42,6 +50,7 @@ module Engine
 
         return [Action::Bid.new(entity, **bid_params)] if auto_buy?(entity, program)
         return [Action::Bid.new(entity, **bid_params)] if auto_bid?(entity, program)
+        return [Action::Bid.new(entity, **bid_params)] if program.pass_unless_outbid && !program.enable_maximum_bid
 
         if auto_disable_if_bids?(entity, program)
           return [Action::ProgramDisable.new(entity,

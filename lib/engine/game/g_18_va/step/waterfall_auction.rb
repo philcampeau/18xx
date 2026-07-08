@@ -61,6 +61,10 @@ module Engine
             end
             entities.each(&:unpass!)
           end
+
+          def hide_entity_selector_dropdown?
+            false
+          end
         end
       end
     end

@@ -163,6 +163,14 @@ module Engine
             @auctioning
           end
 
+          def hide_buy_price_option?
+            false
+          end
+
+          def hide_entity_selector_dropdown?
+            false
+          end
+
           protected
 
           def can_afford?(entity)
