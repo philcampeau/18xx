@@ -200,11 +200,6 @@ module Engine
       end
 
       def activate_program_auction_bid(entity, program)
-        if program.auto_buy_face_value
-          opportunity = next_zero_bid_company_before(program.bid_target)
-          return [Action::Bid.new(entity, **bid_params(opportunity, opportunity.min_bid))] if opportunity
-        end
-
         target = program.bid_target
         return [Action::ProgramDisable.new(entity, reason: 'No bid target selected')] unless target
 
@@ -254,16 +249,6 @@ module Engine
 
       def hide_entity_selector_dropdown?
         true
-      end
-
-      def next_zero_bid_company_before(target)
-        return unless target
-
-        @companies.each do |c|
-          return nil if c == target
-          return c if @bids[c].nil? || @bids[c].empty?
-        end
-        nil
       end
 
       private

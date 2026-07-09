@@ -860,7 +860,8 @@ module Engine
           if validate_auto_actions
             unless auto_actions_match?(action.auto_actions, auto_actions)
               warn "AUTO ACTION MISMATCH for action id=#{action.id}, type=#{action.type}"
-              warn "current_entity=#{round.current_entity&.name} "
+              warn "current_entity=#{round.current_entity&.name}"
+              warn "programmed_actions=#{@programmed_actions.to_h { |k, v| [k.name, v.map(&:to_h)] }}"
               warn "CLIENT: #{action.auto_actions.map { |a| a.to_h.except('created_at') }}"
               warn "SERVER: #{auto_actions.map { |a| a.to_h.except('created_at') }}"
               raise GameError, 'Auto actions do not match'

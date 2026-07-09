@@ -145,7 +145,11 @@ module Engine
       end
 
       def auto_actions
-        active_step(current_entity)&.auto_actions(current_entity)
+        step = active_step(current_entity)
+        warn "auto_actions: current_entity=#{current_entity&.name} active_step=#{step.class}"
+        result = step&.auto_actions(current_entity)
+        warn "auto_actions: result=#{result.inspect}"
+        result
       end
 
       def finished?
