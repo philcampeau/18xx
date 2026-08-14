@@ -285,6 +285,13 @@ module Engine
             max_ownership_percent: 100,
             shares: [10, 10, 10, 10, 10, 10, 10, 10, 5, 5, 5, 5],
             color: '#37383a',
+            abilities: [
+              {
+                type: 'train_limit',
+                description: '+1 train limit',
+                increase: 1,
+              },
+            ],
           },
           {
             sym: 'MS',
