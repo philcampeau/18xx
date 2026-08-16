@@ -20,7 +20,7 @@ module Engine
           depot_trains.reject { |t| @game.wagon?(t) || t.track_type != gauge }.min_by(&:price)
         end
 
-        # FC trains never leave it (rule VII.16); by owner, as Train#variant= would reset buyable.
+        # FC trains are never bought back (rule VII.16); keyed on owner, as a flip back to the base variant restores buyable.
         def other_trains(corporation)
           super.reject { |t| t.owner == @game.fc }
         end

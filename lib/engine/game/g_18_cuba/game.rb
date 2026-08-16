@@ -228,7 +228,7 @@ module Engine
           @fc_exported_8plus = 0
           train = train_by_id('1-0')
           buy_train(@fc, train, :free)
-          # Belt and braces next to Depot#other_trains, which is what actually keeps FC trains unbuyable.
+          # Never bought back (rule VII.16).
           train.buyable = false
         end
 
@@ -393,9 +393,10 @@ module Engine
           train.obsolete_on = nil
           buy_train(@fc, train, :free)
           train.buyable = false
-          @phase.buying_train!(@fc, train, depot)
           @log << "-- Event: A #{train.name} train is exported to #{@fc.name} --"
-          @fc_exported_8plus += 1 if train.name == '8+'
+          @phase.buying_train!(@fc, train, depot)
+          # 4D is a variant of the 8+ card, so key on sym, not name (rule IX.1).
+          @fc_exported_8plus += 1 if train.sym == '8+'
           # End directly: game_end_check would only fire an action later, after a new SR began (rule IX.1).
           # TODO: reliable only once 8+ is unlimited (#12722); until then the finite 8+ stack can be bought out before 2nd export
           end_game!(:second_eight_plus) if @fc_exported_8plus >= 2

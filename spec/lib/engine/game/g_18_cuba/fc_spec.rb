@@ -36,6 +36,23 @@ module Engine
 
             expect(game.phase.name).to eq('3')
           end
+
+          it 'ends the game immediately when the second 8+ is exported' do
+            40.times do
+              game.export_train_to_fc!
+              break if game.finished
+            end
+
+            expect(game.finished).to be(true)
+            expect(game.game_end_check_second_eight_plus?).to be(true) # ended via 2nd 8+, not bank/bankrupt
+          end
+        end
+
+        describe '#crowded_corps' do
+          it 'never includes the FC (no train limit, never discards)' do
+            # the FC holds its preprinted train and its train limit is 0 — flagged without the exemption
+            expect(game.crowded_corps).not_to include(game.fc)
+          end
         end
       end
     end
