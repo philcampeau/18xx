@@ -181,8 +181,7 @@ module Engine
           ], round_num: round_num)
         end
 
-        def new_takeover_round
-          @log << "-- Takeover Round #{@turn} -- "
+        def takeover_round
           G1833NE::Round::Takeover.new(self, [
             G1833NE::Step::ViewAcquirable,
             G1833NE::Step::TakeoverCorporation,
@@ -216,6 +215,11 @@ module Engine
               reorder_players
               new_stock_round
             end
+        end
+
+        def new_takeover_round
+          @log << '-- Takeover Round -- '
+          takeover_round(round_num)
         end
 
         def num_trains(train)
