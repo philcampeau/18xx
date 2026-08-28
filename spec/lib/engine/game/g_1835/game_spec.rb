@@ -557,6 +557,7 @@ describe Engine::Game::G1835::Game do
   end
 
   describe 'nationalization' do
+    let(:players) { %w[a b c] }
     it 'is possible to nationalize' do
       # ignore cash limits for now....
       player_1.set_cash(3000, game.bank)
