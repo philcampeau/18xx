@@ -307,7 +307,9 @@ describe Engine::Game::G1835::Game do
 
       expect(game.minor_by_id('1').owner).to eq(player_1)
     end
+  end
 
+  describe 'cert_limit' do
     def sell_start_packet
       buy(player_1, 'NF')
       buy(player_2, '2')
@@ -368,7 +370,8 @@ describe Engine::Game::G1835::Game do
       expect(game.cert_limit(player_2)).to be 19
       expect(game.cert_limit(player_3)).to be 19
     end
-
+  end
+  describe 'cert_packages_in_SR' do
     def purchasable?(corporation)
       game.corporation_available?(corporation) && corporation.ipoed
     end
@@ -476,7 +479,9 @@ describe Engine::Game::G1835::Game do
 
       expect(player_2.percent_of(game.corporation_by_id('OL'))).to be 60
     end
+  end
 
+  describe 'PR_conversion' do
     def bring_game_to_pr_conversion
       player_1.set_cash(3000, game.bank)
       player_2.set_cash(3000, game.bank)
