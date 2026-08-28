@@ -3,6 +3,15 @@
 require 'spec_helper'
 
 describe Engine::Game::G1835::Game do
+  let(:game) { Engine::Game::G1835::Game.new(players) }
+  let(:by) { game.corporation_by_id('BY') }
+  let(:sx) { game.corporation_by_id('SX') }
+  let(:ba) { game.corporation_by_id('BA') }
+  let(:wt) { game.corporation_by_id('WT') }
+  let(:he) { game.corporation_by_id('HE') }
+  let(:pr) { game.corporation_by_id('PR') }
+  let(:ms) { game.corporation_by_id('MS') }
+  let(:ol) { game.corporation_by_id('OL') }
   let(:player_1) { game.players.find { |player| player.id == 'a' } }
   let(:player_2) { game.players.find { |player| player.id == 'b' } }
   let(:player_3) { game.players.find { |player| player.id == 'c' } }
@@ -226,15 +235,6 @@ describe Engine::Game::G1835::Game do
 
   describe 'start_packet_sale' do
     let(:players) { %w[a b c] }
-    let(:game) { Engine::Game::G1835::Game.new(players) }
-    let(:by) { game.corporation_by_id('BY') }
-    let(:sx) { game.corporation_by_id('SX') }
-    let(:ba) { game.corporation_by_id('BA') }
-    let(:wt) { game.corporation_by_id('WT') }
-    let(:he) { game.corporation_by_id('HE') }
-    let(:pr) { game.corporation_by_id('PR') }
-    let(:ms) { game.corporation_by_id('MS') }
-    let(:ol) { game.corporation_by_id('OL') }
 
     def may_purchase?(company_id)
       game.active_step.may_purchase?(game.company_by_id(company_id))
@@ -309,32 +309,34 @@ describe Engine::Game::G1835::Game do
     end
   end
 
+  def sell_start_packet
+    buy(player_1, 'NF')
+    buy(player_2, '2')
+    buy(player_3, 'LD')
+    buy(player_1, '1')
+    buy(player_2, '3')
+    buy(player_3, '4')
+    buy(player_1, 'BY_D')
+    buy(player_2, 'BB')
+    buy(player_3, 'HB')
+    buy(player_1, 'OBB')
+    buy(player_2, '5')
+    buy(player_3, '6')
+    buy(player_1, 'PB')
+
+    expect(player_1.percent_of(by)).to be 50
+    expect(player_3.percent_of(game.corporation_by_id('SX'))).to be 20
+
+    # player_2 has priority deal
+    expect(game.players.first).to eq(player_2)
+    # Final distribution is:
+    # player 1: NF, 1, OBB, PR, 50% BY
+    # player 2: 2, 3, 5, BB
+    # player 3: 4, 6, HB, 20% SX
+  end
+
   describe 'cert_limit' do
-    def sell_start_packet
-      buy(player_1, 'NF')
-      buy(player_2, '2')
-      buy(player_3, 'LD')
-      buy(player_1, '1')
-      buy(player_2, '3')
-      buy(player_3, '4')
-      buy(player_1, 'BY_D')
-      buy(player_2, 'BB')
-      buy(player_3, 'HB')
-      buy(player_1, 'OBB')
-      buy(player_2, '5')
-      buy(player_3, '6')
-      buy(player_1, 'PB')
-
-      expect(player_1.percent_of(by)).to be 50
-      expect(player_3.percent_of(game.corporation_by_id('SX'))).to be 20
-
-      # player_2 has priority deal
-      expect(game.players.first).to eq(player_2)
-      # Final distribution is:
-      # player 1: NF, 1, OBB, PR, 50% BY
-      # player 2: 2, 3, 5, BB
-      # player 3: 4, 6, HB, 20% SX
-    end
+    let(:players) { %w[a b c] }
 
     it 'increases the cert limit when having 80% or more of a corp' do
       expect(game.cert_limit(player_1)).to be 19
@@ -371,7 +373,9 @@ describe Engine::Game::G1835::Game do
       expect(game.cert_limit(player_3)).to be 19
     end
   end
+
   describe 'cert_packages_in_SR' do
+    let(:players) { %w[a b c] }
     def purchasable?(corporation)
       game.corporation_available?(corporation) && corporation.ipoed
     end
@@ -482,6 +486,7 @@ describe Engine::Game::G1835::Game do
   end
 
   describe 'PR_conversion' do
+    let(:players) { %w[a b c] }
     def bring_game_to_pr_conversion
       player_1.set_cash(3000, game.bank)
       player_2.set_cash(3000, game.bank)
