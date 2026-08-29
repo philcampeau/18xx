@@ -7,25 +7,8 @@ module Engine
         class BuySellParShares < Engine::Step::BuySellParShares
           def process_buy_shares(action)
             if action.bundle.owner.player?
-              player = action.entity
-              bundle = action.bundle
-              price = nationalization_price(bundle.price)
-              owner = bundle.owner
-              corporation = bundle.corporation
-
-              raise GameError, 'Not enough cash for nationalization' unless player.cash >= price
-              raise GameError, 'Cannot nationalize this corporation' unless can_nationalize?(player, corporation)
-              raise GameError, "Can't buy a share of #{corporation&.name}" unless can_buy?(player, bundle)
-
-              @log << "-- Nationalization: #{player.name} buys a #{bundle.percent}% share"\
-                      " of #{corporation.name} from #{owner.name} for #{@game.format_currency(price)} --"
-
-              @game.share_pool.transfer_shares(bundle,
-                                               player,
-                                               spender: player,
-                                               receiver: owner,
-                                               price: price)
-              track_action(action, bundle.corporation)
+              nationalize(action.entity, action.bundle)
+              track_action(action, action.bundle.corporation)
             else
               owner = action.bundle.owner
               super
@@ -84,6 +67,25 @@ module Engine
             return false unless player
 
             player.percent_of(corporation) > 50
+          end
+
+          def nationalize(buyer, bundle)
+            price = nationalization_price(bundle.price)
+            seller = bundle.owner
+            corporation = bundle.corporation
+
+            raise GameError, 'Not enough cash for nationalization' unless buyer.cash >= price
+            raise GameError, 'Cannot nationalize this corporation' unless can_nationalize?(buyer, corporation)
+            raise GameError, "Can't buy a share of #{corporation&.name}" unless can_buy?(buyer, bundle)
+
+            @log << "-- Nationalization: #{buyer.name} buys a #{bundle.percent}% share"\
+                    " of #{corporation.name} from #{seller.name} for #{@game.format_currency(price)} --"
+
+            @game.share_pool.transfer_shares(bundle,
+                                             buyer,
+                                             spender: buyer,
+                                             receiver: seller,
+                                             price: price)
           end
         end
       end
