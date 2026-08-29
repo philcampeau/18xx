@@ -1,19 +1,30 @@
 # frozen_string_literal: true
 
-require_relative '../../nationalization'
-
 module Engine
   module Game
     module G1835
       module Step
         class BuySellParShares < Engine::Step::BuySellParShares
-          include Engine::Step::Nationalization
-
           def process_buy_shares(action)
             if action.bundle.owner.player?
               player = action.entity
               bundle = action.bundle
-              nationalize(player, bundle)
+              price = nationalization_price(bundle.price)
+              owner = bundle.owner
+              corporation = bundle.corporation
+
+              raise GameError, 'Not enough cash for nationalization' unless player.cash >= price
+              raise GameError, 'Cannot nationalize this corporation' unless can_nationalize?(player, corporation)
+              raise GameError, "Can't buy a share of #{corporation&.name}" unless can_buy?(player, bundle)
+
+              @log << "-- Nationalization: #{player.name} buys a #{bundle.percent}% share"\
+                      " of #{corporation.name} from #{owner.name} for #{@game.format_currency(price)} --"
+
+              @game.share_pool.transfer_shares(bundle,
+                                               player,
+                                               spender: player,
+                                               receiver: owner,
+                                               price: price)
               track_action(action, bundle.corporation)
             else
               owner = action.bundle.owner
