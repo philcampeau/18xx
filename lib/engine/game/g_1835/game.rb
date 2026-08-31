@@ -151,7 +151,7 @@ module Engine
           @draft_round_num = 1
           @preussen_may_float = false
 
-          @corporations.select { |corp| corp.type == :major }.each do |corp|
+          @corporations.select { |corp| major?(corp) }.each do |corp|
             @stock_market.set_par(corp, @stock_market.par_prices.find { |share_price| share_price.price == PAR_PRICES[corp.id] })
           end
 
@@ -227,7 +227,7 @@ module Engine
         end
 
         def bundles_for_corporation(share_holder, corporation, shares: nil)
-          return super if share_holder.player? && corporation.type == :major
+          return super if share_holder.player? && major?(corporation)
 
           []
         end
@@ -247,7 +247,7 @@ module Engine
         def cert_limit(player = nil)
           return @cert_limit unless player
 
-          @cert_limit + @corporations.count { |corporation| corporation.type == :major && player.percent_of(corporation) >= 80 }
+          @cert_limit + @corporations.count { |corporation| major?(corporation) && player.percent_of(corporation) >= 80 }
         end
 
         def corporation_available?(corp)
@@ -294,7 +294,7 @@ module Engine
         end
 
         def tile_lays(entity)
-          return TWO_LAYS if entity.type == :major && @phase.status.include?('two_tile_lays')
+          return TWO_LAYS if major?(entity) && @phase.status.include?('two_tile_lays')
 
           LAY_OR_UPGRADE
         end
@@ -315,6 +315,10 @@ module Engine
 
           # PR has already been formed and not all minors/companies have been converted yet
           prussian.floated? && !prussian_exchangeables.reject(&:closed?).empty?
+        end
+
+        def major?(corporation)
+          corporation.type == :major || corporation.type == :prussian
         end
 
         def prussian

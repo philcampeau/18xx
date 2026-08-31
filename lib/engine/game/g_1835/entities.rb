@@ -277,7 +277,7 @@ module Engine
           {
             sym: 'PR',
             name: 'Preußische Eisenbahn',
-            type: 'major',
+            type: 'prussian',
             logo: '1835/PR',
             simple_logo: '1835/PR.alt',
             tokens: [0, 0, 0, 0, 0],
@@ -285,13 +285,6 @@ module Engine
             max_ownership_percent: 100,
             shares: [10, 10, 10, 10, 10, 10, 10, 10, 5, 5, 5, 5],
             color: '#37383a',
-            abilities: [
-              {
-                type: 'train_limit',
-                description: '+1 train limit',
-                increase: 1,
-              },
-            ],
           },
           {
             sym: 'MS',
