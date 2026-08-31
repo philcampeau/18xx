@@ -12,7 +12,7 @@ module Engine
   module Game
     module G1835
       class Game < Game::Base
-        attr_accessor :draft_finished, :pr_can_form, :conversion_choice_during_or
+        attr_accessor :pr_can_form, :conversion_choice_during_or
         attr_reader :preussen_may_float
 
         include_meta(G1835::Meta)
@@ -49,6 +49,8 @@ module Engine
         TOKEN_PLACEMENT_ON_TILE_LAY_ENTITY = :owner
 
         EBUY_DEPOT_TRAIN_MUST_BE_CHEAPEST = false
+
+        MUST_BUY_TRAIN = :always
 
         MARKET = [['', '', '', ''] + %w[132 148 166 186 208 232 258 286 316 348 382 418],
                   ['', ''] + %w[98 108 120 134 150 168 188 210 234 260 288 318 350 384],
@@ -194,8 +196,6 @@ module Engine
             corp.shares.reject(&:president).each { |share| share.double_cert = (share.percent == 20) }
           end
 
-          @draft_finished = false
-
           @draft_round_num = 1
           @preussen_may_float = false
 
@@ -228,12 +228,12 @@ module Engine
         end
 
         def new_draft_round
-          G1835::Round::Draft.new(self,
-                                  [G1835::Step::Draft],)
+          @log << "-- #{round_description('Draft')} --"
+          init_round
         end
 
         def next_round!
-          return super if @draft_finished
+          return super if all_drafted?
 
           clear_programmed_actions
           @round =
@@ -268,6 +268,10 @@ module Engine
             G1835::Step::MinorExchange,
             G1835::Step::BuySellParShares,
           ])
+        end
+
+        def all_drafted?
+          companies.all? { |c| c.owner || c.closed? }
         end
 
         def bundles_for_corporation(share_holder, corporation, shares: nil)

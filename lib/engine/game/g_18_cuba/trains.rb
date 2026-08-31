@@ -5,6 +5,7 @@ module Engine
     module G18Cuba
       module Trains
         WAGONS = %w[1w 2w 3w].freeze
+        NON_WAGON_TRAINS = %w[4D].freeze
 
         EVENTS_TEXT = Base::EVENTS_TEXT.merge(
           'sugar_cane_open_for_majors' => ['Sugar cane open for majors',
@@ -16,6 +17,11 @@ module Engine
         # Wagons attach to trains rather than running independently.
         def wagon?(train)
           WAGONS.include?(train.name)
+        end
+
+        # A wagon may be attached to any regular broad train except a 4D (rule VII.11).
+        def wagon_attachable?(train)
+          !wagon?(train) && !NON_WAGON_TRAINS.include?(train.name) && train.track_type == :broad
         end
 
         def num_wagons(entity)
@@ -37,6 +43,7 @@ module Engine
         end
 
         # Currently variants 2p medium, 3p short setup. Further variant support to be added later.
+        # TODO: drop the '8+' entries when 8+ goes num: 'unlimited' (#12722); num_trains reads this first, else N self-cloning 8+
         TRAIN_FOR_PLAYER_COUNT = {
           2 => {
             '2': 5,
@@ -184,7 +191,7 @@ module Engine
             ],
           },
           {
-            # TODO: switch to num: 'unlimited' once #12722 merges (see PHASES below).
+            # TODO: switch to num: 'unlimited' once #12722 merges.
             name: '8+',
             distance: 8,
             price: 700,
@@ -194,6 +201,7 @@ module Engine
               {
                 name: '4D',
                 distance: 4,
+                multiplier: 2,
                 track_type: :broad,
                 price: 800,
               },
@@ -245,6 +253,14 @@ module Engine
             track_type: :narrow,
             available_on: '5',
             discount: { '4n' => 130, '4-1n' => 65 },
+          },
+          {
+            name: '1',
+            distance: 1,
+            price: 0,
+            track_type: :broad,
+            num: 1,
+            reserved: true,
           },
           ].freeze
 
