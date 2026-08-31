@@ -8,7 +8,6 @@ module Engine
       module Step
         class WaterfallAuction < Engine::Step::WaterfallAuction
           def min_bid(company)
-            return unless company
             return company.min_bid if may_purchase?(company)
 
             high_bid = highest_bid(company)

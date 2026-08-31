@@ -7,19 +7,21 @@ module Engine
     module G1833NE
       module Step
         class TakeoverCorporation < Engine::Step::Base
-          def actions(entity)
-            return [] if entity != current_entity
-            return [] unless entity.corporation?
-            return [] unless @round.view_merge_options
+          #  The code below is a placeholder for now
 
-            %w[takeover pass]
-          end
+          # def actions(entity)
+          #   return [] if entity != current_entity
+          #   return [] unless entity.corporation?
+          #   return [] unless @round.view_merge_options
 
-          def auto_actions(entity)
-            return if entity != current_entity || !@round.view_merge_options || !@game.takeover_candidates(entity).empty?
+          #   %w[takeover pass]
+          # end
 
-            [Engine::Action::Pass.new(entity)]
-          end
+          # def auto_actions(entity)
+          #   return if entity != current_entity || !@round.view_merge_options || !@game.takeover_candidates(entity).empty?
+
+          #   [Engine::Action::Pass.new(entity)]
+          # end
         end
       end
     end
