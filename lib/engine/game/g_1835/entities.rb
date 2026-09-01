@@ -277,7 +277,7 @@ module Engine
           {
             sym: 'PR',
             name: 'Preußische Eisenbahn',
-            type: 'major',
+            type: 'prussian',
             logo: '1835/PR',
             simple_logo: '1835/PR.alt',
             tokens: [0, 20], # tokens to exchange for minors are generated on the fly
