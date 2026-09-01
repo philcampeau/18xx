@@ -256,7 +256,7 @@ module Engine
             G1835::Step::SpecialToken,
             Engine::Step::Track,
             Engine::Step::HomeToken,
-            Engine::Step::Token,
+            G1835::Step::Token,
             Engine::Step::Route,
             G1835::Step::Dividend,
             G1835::Step::BuyTrain,
