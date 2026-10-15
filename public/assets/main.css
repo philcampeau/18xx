@@ -428,3 +428,131 @@ div#game:focus {
     float: left;
   }
 }
+
+/* Home page redesign */
+#welcome {
+  --card-bg: rgba(0, 0, 0, 0.04);
+  --card-border: rgba(0, 0, 0, 0.12);
+  --accent: rgb(240, 229, 140);
+  --muted: rgba(0, 0, 0, 0.65);
+}
+@media (prefers-color-scheme: dark) {
+  #welcome {
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --card-border: rgba(255, 255, 255, 0.15);
+    --muted: rgba(220, 220, 220, 0.7);
+  }
+}
+
+#welcome #hero {
+  padding: 1.25rem 0 0.5rem 0;
+}
+#welcome .hero-title {
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.3rem 0;
+}
+#welcome .hero-text {
+  font-size: 1.05rem;
+  color: var(--muted);
+  margin: 0;
+}
+#welcome #buttons {
+  margin: 1rem 0 0 0;
+}
+
+/* Primary and secondary call-to-action buttons */
+#welcome button.primary,
+#welcome button.secondary {
+  font-size: 0.95rem;
+  font-weight: bold;
+  padding: 0.5rem 1.2rem;
+  border-radius: 999px;
+  margin: 0.25rem 0.75rem 0.25rem 0;
+  line-height: 1.2rem;
+}
+#welcome button.primary {
+  background-color: black;
+  color: gainsboro;
+  border-color: black;
+}
+#welcome button.secondary {
+  background-color: transparent;
+  color: inherit;
+  border-color: currentColor;
+}
+@media(hover: hover) and (pointer: fine) {
+  #welcome button.primary:hover:not([disabled]) {
+    background-color: rgb(240, 229, 140);
+    border-color: rgb(240, 229, 140);
+    color: black;
+  }
+  #welcome button.secondary:hover:not([disabled]) {
+    background-color: var(--card-bg);
+    color: inherit;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  #welcome button.primary {
+    background-color: gainsboro;
+    color: black;
+    border-color: gainsboro;
+  }
+}
+
+/* Notice bar */
+#welcome #notification {
+  background: var(--accent);
+  color: black;
+  border-left: 4px solid black;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0 1rem 0;
+  font-size: 0.95rem;
+}
+#welcome #notification strong {
+  display: block;
+  margin-bottom: 0.15rem;
+}
+#welcome #notification a {
+  text-decoration: underline;
+}
+
+/* Resource cards */
+#welcome #resources {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+@media only screen and (min-width: 600px) {
+  #welcome #resources {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+#welcome .resource-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+#welcome .resource-card h3 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 0 0 0.4rem 0;
+}
+#welcome .resource-card-body {
+  font-size: 0.95rem;
+}
+#welcome .resource-card-body a {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+#welcome .resource-card-body p {
+  margin: 0.25rem 0;
+}
+#welcome .resource-card-body code {
+  font-size: 0.9em;
+}
