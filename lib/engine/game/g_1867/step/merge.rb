@@ -85,12 +85,7 @@ module Engine
               raise GameError, "Choose a corporation to merge with #{corporation.name}"
             end
 
-            # After conversion it is the new price
-            new_price = @game.stock_market.share_prices_with_types(%i[par par_2]).find do |sp|
-              sp.price <= corporation.share_price.price
-            end
-
-            @game.par_corporation(target, new_price)
+            @game.par_corporation(target, convert_price(corporation))
             owner = corporation.owner
 
             @converting = nil
@@ -114,6 +109,12 @@ module Engine
             # All players are eligible to buy shares unlike merger
             @round.share_dealing_players = @game.players.rotate(@game.players.index(target.owner))
             @round.share_dealing_multiple = [corp_owner]
+          end
+
+          def convert_price(corporation)
+            @game.stock_market.share_prices_with_types(%i[par par_2]).find do |sp|
+              sp.price <= corporation.share_price.price
+            end
           end
 
           def move_assets(from, to)
@@ -292,10 +293,10 @@ module Engine
             mergeable = @merging
             mergeable = [corporation] unless @merging
             # Can't merge over 10 corporations
-            return [] if mergeable.size == LIMIT_MERGE
+            return [] if mergeable.size == self.class::LIMIT_MERGE
 
             # Individual player cannot merge over 6 (to make them at 60%)
-            owner_at_limit = mergeable.group_by(&:owner).select { |_x, y| y.size >= LIMIT_OWNED_BY_ONE_ENTITY }.keys
+            owner_at_limit = mergeable.group_by(&:owner).select { |_x, y| y.size >= self.class::LIMIT_OWNED_BY_ONE_ENTITY }.keys
             available = []
             # Mergeable candidates must be connected by track, minors only have one token which simplifies it
             mergeable.each do |corp|
