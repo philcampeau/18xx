@@ -958,6 +958,10 @@ module Engine
           false
         end
 
+        def auto_router_skip_connection?(connection)
+          connection.first[:left]&.halt? || connection.last[:right]&.halt? || false
+        end
+
         def check_connected(route, corporation)
           visits = route.visited_stops
           blocked = nil

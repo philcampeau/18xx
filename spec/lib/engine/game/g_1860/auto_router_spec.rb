@@ -55,6 +55,25 @@ module Engine
         end
       end
 
+      it 'only builds routes that begin and end at a station' do
+        expect(routes).not_to be_empty
+        expect(routes).to(be_none { |r| r.visited_stops.first.halt? || r.visited_stops.last.halt? })
+      end
+
+      it 'skips connections that begin or end at a halt' do
+        halt_route = nil
+        game.hexes.each do |hex|
+          hex.tile.towns.select(&:halt?).each do |halt|
+            halt_route ||= { left: halt, right: corporation.tokens.first.city, chain: { nodes: [], paths: [] } }
+          end
+        end
+
+        expect(game.auto_router_skip_connection?([halt_route])).to be(true)
+        expect(game.auto_router_skip_connection?([halt_route.merge(left: halt_route[:right], right: halt_route[:left])]))
+          .to be(true)
+        expect(game.auto_router_skip_connection?([halt_route.merge(left: halt_route[:right])])).to be(false)
+      end
+
       it 'never re-enters a hex' do
         expect(routes).to(be_all do |route|
           hexes = route.ordered_paths.map(&:hex).chunk_while { |a, b| a == b }.map(&:first)

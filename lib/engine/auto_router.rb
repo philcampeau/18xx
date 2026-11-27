@@ -170,6 +170,8 @@ module Engine
           end
 
           connection = connections[id]
+          next if @game.auto_router_skip_connection?(connection)
+
           bitfield = bitfield_from_connection(connection, hexside_bits)
           stops = connection.flat_map { |conn| [conn[:left], conn[:right]] }.uniq.compact.flat_map(&:stops)
           city_stops = stops.count { |stop| !stop.town? }
