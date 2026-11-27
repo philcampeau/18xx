@@ -971,12 +971,7 @@ module Engine
             end
           end
 
-          # no need to check whether cities are tokened out because of the above
           super(route, nil)
-
-          return if !blocked || route.routes.none? { |r| r != route && tokened_out?(r) }
-
-          raise GameError, 'Only one train can bypass a tokened-out city'
         end
 
         def check_distance(route, visits)
@@ -1013,6 +1008,8 @@ module Engine
         end
 
         def check_route_combination(routes)
+          raise GameError, 'Only one train can bypass a tokened-out city' if routes.count { |r| tokened_out?(r) } > 1
+
           check_home_token(current_entity, routes) unless routes.empty?
           check_intersection(routes) unless routes.empty?
         end

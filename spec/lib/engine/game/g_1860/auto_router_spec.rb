@@ -33,6 +33,28 @@ module Engine
         end)
       end
 
+      context 'with two trains that can each bypass a tokened-out city' do
+        let(:game) { Game.load(data, at_action: 144) }
+        let(:router) { AutoRouter.new(game) }
+        let(:by_train) { router.path(trains, corporation).first }
+        let(:bypassing) do
+          trains.select { |t| t.name == '3+2' }.map do |train|
+            by_train[train].find { |route| game.tokened_out?(route) }
+          end
+        end
+
+        it 'rejects the combination, as only one train may bypass' do
+          expect(corporation.name).to eq('IOW')
+          expect(bypassing).to all(be_truthy)
+          expect(router.real_revenue(bypassing.map(&:clone))).to eq(-1)
+        end
+
+        it 'names the bypass rule as the reason' do
+          expect { game.check_route_combination(bypassing) }
+            .to raise_error(GameError, 'Only one train can bypass a tokened-out city')
+        end
+      end
+
       it 'never re-enters a hex' do
         expect(routes).to(be_all do |route|
           hexes = route.ordered_paths.map(&:hex).chunk_while { |a, b| a == b }.map(&:first)
