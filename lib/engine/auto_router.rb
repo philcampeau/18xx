@@ -95,7 +95,7 @@ module Engine
           LOGGER.debug { "Path search: #{nodes.index(node)} / #{nodes.size} - paths starting from #{node.hex.name}" }
         end
 
-        walk_corporation = graph.no_blocking? ? nil : corporation
+        walk_corporation = graph.no_blocking? || !@game.auto_router_blocking? ? nil : corporation
         graph.walk_token(node, corporation: walk_corporation, skip_paths: skip_paths, links: true,
                                revisit: true) do |_, vp|
           paths = vp.keys

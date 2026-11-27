@@ -1605,6 +1605,10 @@ module Engine
         0
       end
 
+      def auto_router_blocking?
+        true
+      end
+
       def route_links(_start_node, _end_node, _corporation)
         []
       end

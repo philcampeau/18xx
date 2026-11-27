@@ -954,6 +954,10 @@ module Engine
           visits[1..-2].any? { |node| node.city? && custom_blocks?(node, corporation) }
         end
 
+        def auto_router_blocking?
+          false
+        end
+
         def check_connected(route, corporation)
           visits = route.visited_stops
           blocked = nil
@@ -961,7 +965,7 @@ module Engine
           if visits.size > 2
             visits[1..-2].each do |node|
               next if !node.city? || !custom_blocks?(node, corporation)
-              raise GameError, 'Route can only bypass one tokened-out city' if blocked
+              raise RouteTooLong, 'Route can only bypass one tokened-out city' if blocked
 
               blocked = node
             end
@@ -987,8 +991,8 @@ module Engine
                            [c_allowance - city_stops.size, 0].max
                          end
 
-          raise GameError, 'Route has too many cities/offboards' if city_stops.size > c_allowance
-          raise GameError, 'Route has too many towns' if town_stops.size > th_allowance && option_no_skip_towns?
+          raise RouteTooLong, 'Route has too many cities/offboards' if city_stops.size > c_allowance
+          raise RouteTooLong, 'Route has too many towns' if town_stops.size > th_allowance && option_no_skip_towns?
           raise GameError, 'Route cannot begin/end in a halt' if visits.first.halt? || visits.last.halt?
         end
 
@@ -997,7 +1001,7 @@ module Engine
           last_hex = nil
           route.ordered_paths.each do |path|
             hex = path.hex
-            raise GameError, 'Route cannot re-enter a hex' if hex != last_hex && visited_hexes[hex]
+            raise ReusesCity, 'Route cannot re-enter a hex' if hex != last_hex && visited_hexes[hex]
 
             visited_hexes[hex] = true
             last_hex = hex
