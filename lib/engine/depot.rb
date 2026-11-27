@@ -15,7 +15,7 @@ module Engine
       @trains.each { |train| train.owner = self }
       @upcoming = @trains.dup
       @discarded = []
-      @retired_unlimited = []
+      @exported_unlimited = []
     end
 
     def export!
@@ -27,7 +27,7 @@ module Engine
 
     def export_all!(name, silent: false)
       @game.log << "-- Event: All #{name} trains are exported --" unless silent
-      @retired_unlimited << name
+      @exported_unlimited << name
       while (train = @upcoming.first)&.name == name
         @game.remove_train(train)
         @game.phase.buying_train!(nil, train, self)
@@ -85,12 +85,18 @@ module Engine
 
     def delete_from_upcoming(train)
       index = @upcoming.index(train)
-      deleted = @upcoming.delete(train)
-      return if !index || !deleted&.unlimited || @retired_unlimited.include?(train.name) ||
-               (@upcoming[index]&.name == train.name)
+      @upcoming.delete(train)
+      return unless replace_unlimited?(train, index)
 
       insert_train(train.clone_unlimited(index: next_clone_index(train)), index)
       @game.update_trains_cache
+    end
+
+    def replace_unlimited?(train, index)
+      index &&
+        train.unlimited &&
+        !@exported_unlimited.include?(train.name) &&
+        @upcoming[index]&.name != train.name
     end
 
     def next_clone_index(train)
