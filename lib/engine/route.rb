@@ -31,7 +31,7 @@ module Engine
 
       @bitfield = opts[:bitfield] # array of ints used only by auto-routing algorithm
       @router_cost = opts[:router_cost] # extra connection cost used only by auto-routing algorithm
-      @exclusive = false # true if no other route in a combination may also be exclusive; used only by auto-routing
+      @exclusive = false
     end
 
     # Scratch cache shared by callers that derive values from this route.

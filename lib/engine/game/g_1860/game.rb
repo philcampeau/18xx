@@ -946,12 +946,15 @@ module Engine
           raise GameError, 'Routes must intersect with each other' if visited.size != actual_routes.size
         end
 
-        def tokened_out?(route)
+        def bypassed_cities(route)
           visits = route.visited_stops
-          return false unless visits.size > 2
+          return [] unless visits.size > 2
 
-          corporation = route.corporation
-          visits[1..-2].any? { |node| node.city? && custom_blocks?(node, corporation) }
+          visits[1..-2].select { |node| node.city? && custom_blocks?(node, route.corporation) }
+        end
+
+        def tokened_out?(route)
+          !bypassed_cities(route).empty?
         end
 
         def auto_router_blocking?
@@ -959,25 +962,15 @@ module Engine
         end
 
         def auto_router_skip_connection?(connection)
-          connection.first[:left]&.halt? || connection.last[:right]&.halt? || false
+          connection.first[:left]&.halt? || connection.last[:right]&.halt?
         end
 
         def auto_router_exclusive?(route)
           tokened_out?(route)
         end
 
-        def check_connected(route, corporation)
-          visits = route.visited_stops
-          blocked = nil
-
-          if visits.size > 2
-            visits[1..-2].each do |node|
-              next if !node.city? || !custom_blocks?(node, corporation)
-              raise RouteTooLong, 'Route can only bypass one tokened-out city' if blocked
-
-              blocked = node
-            end
-          end
+        def check_connected(route, _corporation)
+          raise RouteTooLong, 'Route can only bypass one tokened-out city' if bypassed_cities(route).size > 1
 
           super(route, nil)
         end
@@ -1016,10 +1009,11 @@ module Engine
         end
 
         def check_route_combination(routes)
+          return if routes.empty?
           raise GameError, 'Only one train can bypass a tokened-out city' if routes.count { |r| tokened_out?(r) } > 1
 
-          check_home_token(current_entity, routes) unless routes.empty?
-          check_intersection(routes) unless routes.empty?
+          check_home_token(current_entity, routes)
+          check_intersection(routes)
         end
 
         # must stop at all towns on route or must maximize revenue
