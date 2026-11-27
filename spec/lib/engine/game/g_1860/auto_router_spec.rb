@@ -74,6 +74,35 @@ module Engine
         expect(game.auto_router_skip_connection?([halt_route.merge(left: halt_route[:right])])).to be(false)
       end
 
+      describe 'bitfield for in-tile paths between stations' do
+        let(:router) { AutoRouter.new(game) }
+        let(:paths) { game.hex_by_id('F2').tile.paths.select { |p| p.nodes.size > 1 } }
+        let(:first) { paths.first }
+        let(:second) { paths.find { |p| p != first && !(p.nodes & first.nodes).empty? } }
+
+        def bitfield(path, bits)
+          connection = [{ left: path.nodes[0], right: path.nodes[1], chain: { nodes: path.nodes, paths: [path] } }]
+          router.bitfield_from_connection(connection, bits)
+        end
+
+        it 'does not treat two different paths that share a station as the same track' do
+          bits = Hash.new { |h, k| h[k] = 0 }
+          a = bitfield(first, bits)
+          b = bitfield(second, bits)
+
+          expect(a.zip(b).sum { |x, y| x & (y || 0) }).to eq(0)
+        end
+
+        it 'treats the same path as the same track' do
+          bits = Hash.new { |h, k| h[k] = 0 }
+          a = bitfield(first, bits)
+          b = bitfield(first, bits)
+
+          expect(a).to eq(b)
+          expect(a.sum).to be_positive
+        end
+      end
+
       it 'never re-enters a hex' do
         expect(routes).to(be_all do |route|
           hexes = route.ordered_paths.map(&:hex).chunk_while { |a, b| a == b }.map(&:first)

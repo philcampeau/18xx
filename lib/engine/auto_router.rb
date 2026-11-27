@@ -281,12 +281,8 @@ module Engine
         if paths.size == 1 && all_paths.size > 1
           paths[0].edges.each { |edge| check_edge_and_set(bitfield, edge.id, hexside_bits) }
         elsif paths.size == 1 # special case for tiny intra-tile path like in 18NewEngland (issue #6890)
-          hexside_left = paths[0].nodes[0].id
-          check_edge_and_set(bitfield, hexside_left, hexside_bits)
-          if paths[0].nodes.size > 1 # local trains may not have a second node
-            hexside_right = paths[0].nodes[1].id
-            check_edge_and_set(bitfield, hexside_right, hexside_bits)
-          end
+          path = paths[0]
+          check_edge_and_set(bitfield, path.nodes.size > 1 ? path : path.nodes[0].id, hexside_bits)
         else
           (paths.size - 1).times do |index|
             # hand-optimized ruby gives faster opal code
