@@ -962,6 +962,10 @@ module Engine
           connection.first[:left]&.halt? || connection.last[:right]&.halt? || false
         end
 
+        def auto_router_exclusive?(route)
+          tokened_out?(route)
+        end
+
         def check_connected(route, corporation)
           visits = route.visited_stops
           blocked = nil

@@ -202,6 +202,7 @@ module Engine
             route.routes = [route]
             # defer route combination checks until we have the full combination of routes to check
             route.revenue(suppress_check_route_combination: true)
+            route.exclusive = @game.auto_router_exclusive?(route)
             train_routes[train] << route
           rescue RouteTooLong
             # ignore for this train, and abort walking this path if ignored for all trains
@@ -387,6 +388,9 @@ module Engine
               if (js_route_bitfield_conflicts(route.bitfield, group_bits)) {
                 continue;
               }
+              if (route.exclusive && routes_metadata.exclusives > 0) {
+                continue;
+              }
               best = route.estimate_revenue;
             }
             remaining_revenue += best;
@@ -410,12 +414,15 @@ module Engine
               route.bitfield,
               bitfield[train_group],
           );
+          const exclusives = metadata.exclusives + (route.exclusive ? 1 : 0);
           return {
             estimate_revenue:
               metadata.estimate_revenue + route.estimate_revenue,
             bitfield,
+            exclusives,
             invalid_because_overlap:
               metadata.invalid_because_overlap ||
+              exclusives > 1 ||
               js_route_bitfield_conflicts(
                 route.bitfield,
                 metadata.bitfield[train_group],
@@ -428,6 +435,7 @@ module Engine
           return {
             estimate_revenue: 0,
             bitfield: new Array(number_train_groups).fill(null).map(() => []),
+            exclusives: 0,
             invalid_because_overlap: false,
           };
         }

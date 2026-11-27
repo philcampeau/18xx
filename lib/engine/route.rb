@@ -4,7 +4,7 @@ require_relative 'game_error'
 
 module Engine
   class Route
-    attr_accessor :halts, :routes, :bitfield
+    attr_accessor :halts, :routes, :bitfield, :exclusive
     attr_reader :last_node, :phase, :train, :abilities, :router_cost
 
     def initialize(game, phase, train, **opts)
@@ -31,6 +31,7 @@ module Engine
 
       @bitfield = opts[:bitfield] # array of ints used only by auto-routing algorithm
       @router_cost = opts[:router_cost] # extra connection cost used only by auto-routing algorithm
+      @exclusive = false # true if no other route in a combination may also be exclusive; used only by auto-routing
     end
 
     # Scratch cache shared by callers that derive values from this route.

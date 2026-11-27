@@ -49,6 +49,15 @@ module Engine
           expect(router.real_revenue(bypassing.map(&:clone))).to eq(-1)
         end
 
+        it 'marks exactly the bypassing routes as exclusive' do
+          all = by_train.values.flatten
+
+          expect(all).not_to be_empty
+          expect(all.select(&:exclusive)).to all(satisfy { |route| game.tokened_out?(route) })
+          expect(all.reject(&:exclusive)).to all(satisfy { |route| !game.tokened_out?(route) })
+          expect(bypassing).to all(have_attributes(exclusive: true))
+        end
+
         it 'names the bypass rule as the reason' do
           expect { game.check_route_combination(bypassing) }
             .to raise_error(GameError, 'Only one train can bypass a tokened-out city')

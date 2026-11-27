@@ -1613,6 +1613,10 @@ module Engine
         false
       end
 
+      def auto_router_exclusive?(_route)
+        false
+      end
+
       def route_links(_start_node, _end_node, _corporation)
         []
       end
